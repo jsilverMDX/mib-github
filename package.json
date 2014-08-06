@@ -27,5 +27,10 @@
     "lodash.where": "^2.4.1",
     "request": "^2.40.0",
     "winston": "^0.7.3"
+  },
+  "browser": {
+    "winston": "console",
+    "./authorizer": false,
+    "./card_handler": false
   }
 }
