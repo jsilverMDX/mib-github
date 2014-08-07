@@ -16,6 +16,31 @@ module.exports = function(boardCtrl, api, github) {
   var user = null;
   var linker = null; 
 
+  function kickOff() {
+    linker._ShowAuthorizationForm = false
+    github.get('user').success(function(data) {
+      user = data;
+      linker._Help = "Is it a personal repository or part of an organization?"
+      linker._PersonalOrOrg = true;
+    }).error(function (info, statusCode) {
+      if (statusCode === 401) {
+        linker._Help = "Please login to GitHub";
+        linker._ShowAuthorizationForm = true
+        linker._AuthorizationFunction = function () {
+          api.post("session", {
+            provider: "github",
+            uid: linker._auth_username,
+            pw: linker._auth_password
+          }).success(function(data) {
+            console.log(arguments);
+            github.defaults.headers = { 'Authorization': 'token '+data.provider.token }
+            kickOff()
+          })
+        }
+      }
+    })
+  }
+
   return {
     info: info,
     next: function() {
@@ -23,11 +48,7 @@ module.exports = function(boardCtrl, api, github) {
       board = boardCtrl.attributes;
       linker._Provider = this;
       linker._Help = "Loading user metadata ...";
-      github.get('user').success(function(data) {
-        user = data;
-        linker._Help = "Is it a personal repository or part of an organization?"
-        linker._PersonalOrOrg = true;
-      })
+      kickOff()
     },
     personal: function() {
       linker._PersonalOrOrg = false;
