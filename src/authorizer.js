@@ -1,13 +1,13 @@
+var logger = require('winston');
 var rateLimit = {};
 
 var client_id = process.env.GITHUB_CLIENT_ID;
 var secret = process.env.GITHUB_CLIENT_SECRET;
 
 var misconfigured = false;
-
-if (!client_id || !secret) {
-  misconfigured = true;
-}
+if (!client_id) logger.warn('GITHUB_CLIENT_ID is not set');
+if (!secret) logger.warn('GITHUB_CLIENT_SECRET is not set');
+if (!client_id || !secret) misconfigured = true;
 
 module.exports = function (uid, pw) {
   if ( misconfigured ) throw new Error("github auth disabled")
