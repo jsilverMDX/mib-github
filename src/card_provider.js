@@ -60,7 +60,7 @@ module.exports = function(boardCtrl, api, github) {
     personal: function() {
       linker._PersonalOrOrg = false;
       this.repoScope = this.info.displayName+'/'+user.login;
-      this.getRepos(user.repos_url);
+      this.getRepos('https://api.github.com/user/repos');
     },
     org: function() {
       linker._PersonalOrOrg = false;
@@ -87,6 +87,7 @@ module.exports = function(boardCtrl, api, github) {
       this.getMoreRepos(url+"?per_page=100");
     },
     getMoreRepos: function(url) {
+      console.log(url);
       github.get(url).success(function(data, status, headers, config) {
         linker._Repos = linker._Repos.concat(data);
         var next = headers('Link') ? li.parse(headers('Link')).next : null;
