@@ -16,8 +16,14 @@ module.exports = function(boardCtrl, api, github) {
   var user = null;
   var linker = null; 
 
+  function setAuthHeader(token) {
+    github.defaults.headers = { 'Authorization': 'token '+token }
+  }
+
   function kickOff() {
     linker._ShowAuthorizationForm = false
+    var token = sessionStorage.getItem('githubToken');
+    if (token) setAuthHeader(token)
     github.get('user').success(function(data) {
       user = data;
       linker._Help = "Is it a personal repository or part of an organization?"
@@ -32,8 +38,9 @@ module.exports = function(boardCtrl, api, github) {
             uid: linker._auth_username,
             pw: linker._auth_password
           }).success(function(data) {
-            console.log(arguments);
-            github.defaults.headers = { 'Authorization': 'token '+data.provider.token }
+            var token = data.provider.token;
+            sessionStorage.setItem('githubToken', token);
+            setAuthHeader(token)
             kickOff()
           })
         }
